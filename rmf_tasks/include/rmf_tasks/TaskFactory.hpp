@@ -18,12 +18,36 @@
 #ifndef INCLUDE__RMF_TASKS__TASKFACTORY_HPP
 #define INCLUDE__RMF_TASKS__TASKFACTORY_HPP
 
+#include <memory>
+
+#include <rmf_task_msgs/msg/loop.hpp>
+#include <rmf_task_msgs/msg/station.hpp>
+#include <rmf_task_msgs/msg/delivery.hpp>
+
+#include "tasks/Loop.hpp"
+#include "tasks/Station.hpp"
+#include "tasks/Delivery.hpp"
+
 namespace rmf_tasks {
 
+//==============================================================================
+/// Implement this class to interpret and manage incoming tasks from RMF
 class TaskFactory
 {
 public:
-  
+
+  using LoopMsg = rmf_task_msgs::msg::Loop;
+  using StationMsg = rmf_task_msgs::msg::Station;
+  using DeliveryMsg = rmf_task_msgs::msg::Delivery;
+
+  /// Creates a new instance of a loop task from an incoming message. 
+  virtual std::shared_ptr<Loop> make_loop_task(const LoopMsg& msg) = 0;
+
+  virtual std::shared_ptr<Station> make_station_task(const StationMsg& msg) = 0;
+
+  virtual std::shared_ptr<Delivery> make_delivery_task(const DeliveryMsg& msg)
+      = 0;
+
 };
 
 } // namespace rmf_tasks
