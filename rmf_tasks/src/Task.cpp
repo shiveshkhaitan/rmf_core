@@ -16,6 +16,7 @@
 */
 
 #include <queue>
+#include <unordered_map>
 
 #include <rmf_tasks/Task.hpp>
 
@@ -27,25 +28,13 @@ class Task::Implementation
 {
 public:
 
-  class SubmissionComparator
-  {
-  public:
-    bool operator()(const Submission& first, const Submission& second)
-    {
-      if (first.score >= second.score)
-        return true;
-      return false;
-    }
-  };
-
   Implementation(const std::string& task_name)
   : _task_name(task_name)
-  {}
+  {
+    _submissions.clear();
+  }
 
-  std::priority_queue<
-    Task::Submission,
-    std::vector<Task::Submission>,
-    SubmissionComparator> _pq;
+  std::unordered_map<std::string, Submission> _submissions;
 
   std::string _task_name;
 };
@@ -66,23 +55,30 @@ std::string Task::name() const
 //==============================================================================
 
 void Task::add_submission(const Submission& submission)
-{}
+{
+  _pimpl->_submissions[submission.robot_name] = submission;
+}
 
 //==============================================================================
 
 std::vector<Task::Submission> Task::submissions() const
 {
-  std::vector<Submission> results;
-  // TODO
-  return results;
+  std::vector<Submission> vect;
+  for (auto it : _pimpl->_submissions)
+  {
+    vect.push_back(it.second);
+  }
+  return vect;
 }
 
 //==============================================================================
 
 rmf_utils::optional<TaskScore> Task::score(const std::string& robot_name) const
 {
-  // TODO
-  return rmf_utils::nullopt;
+  auto it = _pimpl->_submissions.find(robot_name);
+  if (it == _pimpl->_submissions.end())
+    return rmf_utils::nullopt;
+  return it->second.score;
 }
 
 //==============================================================================
@@ -90,16 +86,33 @@ rmf_utils::optional<TaskScore> Task::score(const std::string& robot_name) const
 rmf_utils::optional<rmf_traffic::Trajectory> Task::trajectory(
       const std::string& robot_name) const
 {
-  // TODO
-  return rmf_utils::nullopt;
+  auto it = _pimpl->_submissions.find(robot_name);
+  if (it == _pimpl->_submissions.end())
+    return rmf_utils::nullopt;
+  return it->second.trajectory;
 }
 
 //==============================================================================
 
 rmf_utils::optional<Task::Submission> Task::best_submission() const
 {
-  // TODO
-  return rmf_utils::nullopt;
+  if (_pimpl->_submissions.empty())
+    return rmf_utils::nullopt;
+
+  std::string current_best_robot;
+  TaskScore current_best_score = 0;
+  for (const auto& it : _pimpl->_submissions)
+  {
+    if (it.second.score > current_best_score)
+    {
+      current_best_robot = it.first;
+      current_best_score = it.second.score;
+    }
+  }
+  
+  auto best_it = _pimpl->_submissions.find(current_best_robot);
+  assert(best_it != _pimpl->_submissions.end());
+  return best_it->second;
 }
 
 //==============================================================================
