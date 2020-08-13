@@ -43,6 +43,16 @@ find_package(rmf_task_msgs REQUIRED)
 
 add_executable(test_poly
   src/main.cpp
+  src/Task.cpp
+)
+target_link_libraries(test_poly
+  rmf_utils::rmf_utils
+  rmf_traffic::rmf_traffic
+)
+target_include_directories(test_poly
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
 install(

@@ -18,17 +18,22 @@
 #ifndef INCLUDE__RMF_TASKS__TASKS__DELIVERY_HPP
 #define INCLUDE__RMF_TASKS__TASKS__DELIVERY_HPP
 
+#include "../Task.hpp"
 #include "../TaskFactoryPrediction.hpp"
 
 namespace rmf_tasks {
 
-class Delivery
+class Delivery : public Task
 {
 public:
 
-  virtual Delivery& set_score(TaskScore score) = 0;
+  void set_score(TaskScore score) final;
 
-  virtual TaskScore score() = 0;
+  rmf_utils::optional<TaskScore> score() final;
+
+  void set_trajectory(const rmf_traffic::Trajectory& trajectory) final;
+
+  rmf_utils::optional<rmf_traffic::Trajectory> trajectory() final;
 
 };
 
