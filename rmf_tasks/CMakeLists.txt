@@ -41,15 +41,15 @@ find_package(rmf_task_msgs REQUIRED)
 #     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 # )
 
-add_executable(test_poly
-  src/main.cpp
+add_executable(example
+  src/example.cpp
   src/Task.cpp
 )
-target_link_libraries(test_poly
+target_link_libraries(example
   rmf_utils::rmf_utils
   rmf_traffic::rmf_traffic
 )
-target_include_directories(test_poly
+target_include_directories(example
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
@@ -61,7 +61,7 @@ install(
 )
 
 install(
-  TARGETS test_poly
+  TARGETS example
   RUNTIME DESTINATION lib/rmf_tasks
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib

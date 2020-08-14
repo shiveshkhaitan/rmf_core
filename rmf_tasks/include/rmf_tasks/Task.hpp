@@ -54,7 +54,7 @@ public:
   ///
   /// \return
   ///   Name of the task.
-  virtual std::string name() const;
+  std::string name() const;
 
   /// Adds a Submission to this task.
   ///
