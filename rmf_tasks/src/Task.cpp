@@ -24,96 +24,158 @@ namespace rmf_tasks {
 
 //==============================================================================
 
-class Task::Implementation
+class Task::Prediction::Implementation
 {
 public:
 
-  Implementation(const std::string& task_name)
-  : _task_name(task_name)
-  {
-    _submissions.clear();
-  }
-
-  std::unordered_map<std::string, Submission> _submissions;
+  Implementation(
+      const std::string& task_name,
+      const std::string& robot_name,
+      Score score,
+      const rmf_traffic::Trajectory trajectory)
+  : _task_name(task_name),
+    _robot_name(robot_name),
+    _score(score),
+    _trajectory(trajectory)
+  {}
 
   std::string _task_name;
+
+  std::string _robot_name;
+
+  Score _score;
+
+  rmf_traffic::Trajectory _trajectory;
 };
 
 //==============================================================================
 
-Task::Task(const std::string& task_name)
-: _pimpl(rmf_utils::make_impl<Implementation>(Implementation(task_name)))
+Task::Prediction::Prediction()
 {}
 
 //==============================================================================
 
-std::string Task::name() const
+const std::string& Task::Prediction::get_task_name() const
 {
   return _pimpl->_task_name;
 }
 
 //==============================================================================
 
-void Task::add_submission(const Submission& submission)
+Task::Prediction& Task::Prediction::set_task_name(
+    const std::string& name)
 {
-  _pimpl->_submissions[submission.robot_name] = submission;
+  _pimpl->_task_name = name;
 }
 
 //==============================================================================
 
-std::vector<Task::Submission> Task::submissions() const
+const std::string& Task::Prediction::get_robot_name() const
 {
-  std::vector<Submission> vect;
-  for (auto it : _pimpl->_submissions)
+  return _pimpl->_robot_name;
+}
+
+//==============================================================================
+
+Task::Prediction& Task::Prediction::set_robot_name(
+    const std::string& name)
+{
+  _pimpl->_robot_name = name;
+}
+
+//==============================================================================
+
+Task::Score Task::Prediction::get_score() const
+{
+  return _pimpl->_score;
+}
+
+//==============================================================================
+
+Task::Prediction& Task::Prediction::set_score(Task::Score score)
+{
+  _pimpl->_score = score;
+}
+
+//==============================================================================
+
+const rmf_traffic::Trajectory& Task::Prediction::get_trajectory() const
+{
+  return _pimpl->_trajectory;
+}
+
+//==============================================================================
+
+Task::Prediction& Task::Prediction::set_trajectory(
+    const rmf_traffic::Trajectory& trajectory)
+{
+  _pimpl->_trajectory = trajectory;
+}
+
+//==============================================================================
+
+const Eigen::Vector3d& Task::Prediction::get_final_position() const
+{
+  const auto& final_waypoint = _pimpl->_trajectory.back();
+  return final_waypoint.position();
+}
+
+//==============================================================================
+
+rmf_traffic::Duration Task::Prediction::duration() const
+{
+  return _pimpl->_trajectory.duration();
+}
+
+//==============================================================================
+
+class Task::Implementation
+{
+public:
+
+  Implementation(const std::string& task_name)
+  : _task_name(task_name)
+  {}
+
+  std::string _task_name;
+};
+
+//==============================================================================
+
+const std::string& Task::get_name() const
+{
+  return _pimpl->_task_name;
+}
+
+//==============================================================================
+
+std::shared_ptr<Task::Prediction> Task::best_prediction(
+    const std::vector<std::shared_ptr<Prediction>>& predictions) const
+{
+  if (predictions.empty())
+    return nullptr;
+
+  std::size_t best_prediction_index;
+  Score best_score = 0;
+
+  for (std::size_t i = 0; i < predictions.size(); ++i)
   {
-    vect.push_back(it.second);
-  }
-  return vect;
-}
-
-//==============================================================================
-
-rmf_utils::optional<TaskScore> Task::score(const std::string& robot_name) const
-{
-  auto it = _pimpl->_submissions.find(robot_name);
-  if (it == _pimpl->_submissions.end())
-    return rmf_utils::nullopt;
-  return it->second.score;
-}
-
-//==============================================================================
-
-rmf_utils::optional<rmf_traffic::Trajectory> Task::trajectory(
-      const std::string& robot_name) const
-{
-  auto it = _pimpl->_submissions.find(robot_name);
-  if (it == _pimpl->_submissions.end())
-    return rmf_utils::nullopt;
-  return it->second.trajectory;
-}
-
-//==============================================================================
-
-rmf_utils::optional<Task::Submission> Task::best_submission() const
-{
-  if (_pimpl->_submissions.empty())
-    return rmf_utils::nullopt;
-
-  std::string current_best_robot;
-  TaskScore current_best_score = 0;
-  for (const auto& it : _pimpl->_submissions)
-  {
-    if (it.second.score > current_best_score)
+    const Score current_index_score = predictions[i]->get_score();
+    if (current_index_score > best_score)
     {
-      current_best_robot = it.first;
-      current_best_score = it.second.score;
+      best_prediction_index = i;
+      best_score = current_index_score;
     }
   }
   
-  auto best_it = _pimpl->_submissions.find(current_best_robot);
-  assert(best_it != _pimpl->_submissions.end());
-  return best_it->second;
+  return predictions[best_prediction_index];
 }
+
+//==============================================================================
+
+Task::Task(const std::string& task_name)
+: _pimpl(rmf_utils::make_impl<Implementation>(Implementation(task_name)))
+{}
 
 //==============================================================================
 

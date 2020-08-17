@@ -24,20 +24,26 @@ namespace rmf_tasks {
 
 class Clean : public Task
 {
+
 public:
 
   Clean(const std::string& cleaning_zone)
-  : Task("cleaning_task")
+  : Task("cleaning_task"),
+    _cleaning_zone(cleaning_zone)
   {}
 
-  void append_cleaning_job_trajectory(const Task::Submission& )
+  std::shared_ptr<Prediction> predict(
+      const std::string& robot_name,
+      Eigen::Vector3d position,
+      const std::string& map_name)
   {
-
+    std::shared_ptr<Prediction> new_prediction(new Prediction());
+    return new_prediction;
   }
 
 private:
 
-  std::string 
+  std::string _cleaning_zone;
 
 };
 

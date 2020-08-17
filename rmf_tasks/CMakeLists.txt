@@ -48,11 +48,14 @@ add_executable(example
 target_link_libraries(example
   rmf_utils::rmf_utils
   rmf_traffic::rmf_traffic
+  ${rmf_task_msgs_LIBRARIES}
 )
 target_include_directories(example
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+  PRIVATE
+    ${rmf_task_msgs_INCLUDE_DIRS}
 )
 
 install(
