@@ -1,0 +1,59 @@
+/*
+ * Copyright (C) 2020 Open Source Robotics Foundation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+*/
+
+#include <rmf_tasks/Task.hpp>
+
+namespace rmf_tasks {
+
+//==============================================================================
+class Task::Implementation
+{
+public:
+
+  Implementation(std::string id, PendingPhases phases)
+  {}
+
+  std::string _id;
+
+  std::shared_ptr<ActivePhase> _active_phase;
+  PendingPhases _pending_phases;
+};
+
+//==============================================================================
+auto Task::make(std::string id, PendingPhases phases) -> std::shared_ptr<Task>
+{
+  std::shared_ptr<Task> task(new Task(std::move(id), std::move(phases)));
+  return task;
+}
+
+//==============================================================================
+Task::Task(std::string id, PendingPhases phases)
+: _pimpl(rmf_utils::make_impl<Implementation>(
+    Implementation(std::move(id), std::move(phases))))
+{}
+
+//==============================================================================
+void Task::begin()
+{
+  if (_pimpl->_active_phase)
+    return;
+
+  
+}
+
+//==============================================================================
+} // namespace rmf_tasks
